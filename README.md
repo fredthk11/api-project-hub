@@ -1,5 +1,7 @@
 # API Project Hub 🚀
 
+**Live Demo:** [fredthk11.github.io/api-project-hub](https://fredthk11.github.io/api-project-hub/)
+
 A modern, high-performance portfolio of web applications powered by various public REST and GraphQL APIs. This repository serves as a showcase for interactive UI/UX designs and data integration experiments.
 
 ## 📂 Project Directory
