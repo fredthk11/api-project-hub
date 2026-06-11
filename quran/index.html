@@ -61,7 +61,10 @@
                 card.href = `reader.html?id=${surah.number}`;
                 card.className = 'bg-slate-900 p-6 rounded-xl hover:border-emerald-500 border border-slate-800 transition-all cursor-pointer group';
                 card.innerHTML = `
-                    <h3 class="font-bold text-lg group-hover:text-emerald-400">${surah.englishName}</h3>
+                    <div class="flex items-center gap-4 mb-2">
+                        <span class="text-2xl font-black text-emerald-600">${surah.number}</span>
+                        <h3 class="font-bold text-lg group-hover:text-emerald-400">${surah.englishName}</h3>
+                    </div>
                     <p class="text-sm text-slate-400">${surah.englishNameTranslation} • ${surah.numberOfAyahs} Ayahs</p>
                 `;
                 surahGrid.appendChild(card);
