@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waktu Solat Malaysia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .emerald-gradient { background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .active-prayer { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); }
+    </style>
+</head>
+<body class="bg-[#011612] text-slate-100 min-h-screen">
+
+    <!-- Navigation -->
+    <header class="bg-[#022c22]/80 backdrop-blur-md sticky top-0 z-50 border-b border-emerald-900/50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="../index.html" class="text-emerald-500 hover:text-emerald-400 transition-colors" title="Back to Hub">
+                    <i class="fa-solid fa-grip-vertical text-2xl"></i>
+                </a>
+                <h1 class="text-xl font-extrabold tracking-tight text-emerald-500">SOLATHUB</h1>
+            </div>
+            <nav class="flex items-center gap-6 text-sm font-semibold">
+                <a href="index.html" class="text-emerald-400 border-b-2 border-emerald-400 pb-1">Utama</a>
+                <a href="calendar.html" class="text-slate-400 hover:text-emerald-400 transition-colors">Kalendar</a>
+                <a href="zones.html" class="text-slate-400 hover:text-emerald-400 transition-colors">Zon</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Hero: Countdown -->
+        <section class="emerald-gradient rounded-[2.5rem] p-8 md:p-16 mb-12 shadow-2xl shadow-emerald-950/50 relative overflow-hidden text-center">
+            <div class="relative z-10">
+                <div id="currentZone" class="inline-flex items-center gap-2 bg-black/20 px-4 py-2 rounded-full text-xs font-bold text-emerald-400 mb-6 tracking-widest uppercase">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Mengesan Lokasi...</span>
+                </div>
+                
+                <h2 class="text-slate-400 text-lg md:text-xl font-medium mb-2">Seterusnya: <span id="nextPrayerName" class="text-white font-bold">---</span></h2>
+                <div id="countdown" class="text-6xl md:text-8xl font-black tracking-tighter mb-6">00:00:00</div>
+                
+                <p id="currentDate" class="text-emerald-500/80 font-medium"></p>
+            </div>
+            
+            <!-- Decorative Elements -->
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+        </section>
+
+        <!-- Today's Times Grid -->
+        <section>
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-2xl font-bold flex items-center gap-3">
+                    <i class="fa-solid fa-clock text-emerald-500"></i>
+                    Waktu Solat Hari Ini
+                </h3>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">Rasmi JAKIM</span>
+            </div>
+
+            <div id="prayerGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                <!-- Prayer items injected here -->
+                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-20 py-10 border-t border-emerald-900/30 text-center text-slate-500 text-sm">
+        <p>Data dikuasakan oleh WaktuSolat.app & JAKIM</p>
+        <p class="mt-2">&copy; 2026 SolatHub Portfolio. For study purposes.</p>
+    </footer>
+
+    <script>
+        const API_BASE = 'https://mpt.i906.my/api/prayer';
+        let prayerData = null;
+        let timerInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            updateDate();
+        });
+
+        async function initApp() {
+            const savedZone = localStorage.getItem('selectedZone');
+            if (savedZone) {
+                fetchPrayerTimes(savedZone);
+            } else {
+                detectLocation();
+            }
+        }
+
+        function detectLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    // For now, if no zone selected, we default to SGR01 (Selangor/PJ)
+                    // In a production app, we'd use a reverse-geocode or coordinate-to-zone API.
+                    fetchPrayerTimes('SGR01');
+                }, (error) => {
+                    console.error("Location access denied", error);
+                    fetchPrayerTimes('SGR01'); // Fallback
+                });
+            } else {
+                fetchPrayerTimes('SGR01'); // Fallback
+            }
+        }
+
+        async function fetchPrayerTimes(zone) {
+            try {
+                const res = await fetch(`${API_BASE}/${zone}`);
+                const data = await res.json();
+                prayerData = data.data;
+                
+                document.getElementById('currentZone').querySelector('span').innerText = data.data.place;
+                renderPrayerTimes(data.data.times);
+                startCountdown(data.data.times);
+                
+                // Save zone name for calendar page
+                localStorage.setItem('currentZoneName', data.data.place);
+                localStorage.setItem('selectedZone', zone);
+            } catch (err) {
+                console.error("Fetch error", err);
+            }
+        }
+
+        function renderPrayerTimes(times) {
+            const grid = document.getElementById('prayerGrid');
+            const prayerNames = ['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
+            grid.innerHTML = '';
+
+            const now = new Date();
+
+            times.forEach((time, index) => {
+                const prayerTime = new Date(time * 1000);
+                const timeStr = prayerTime.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+                
+                const card = document.createElement('div');
+                card.className = `glass p-6 rounded-[2rem] text-center border transition-all hover:scale-105`;
+                card.id = `prayer-${index}`;
+                
+                card.innerHTML = `
+                    <p class="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2">${prayerNames[index]}</p>
+                    <p class="text-2xl font-black">${timeStr}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function startCountdown(times) {
+            clearInterval(timerInterval);
+            const prayerNames = ['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
+
+            timerInterval = setInterval(() => {
+                const now = Math.floor(Date.now() / 1000);
+                let nextIndex = -1;
+
+                // Find next prayer
+                for (let i = 0; i < times.length; i++) {
+                    if (times[i] > now) {
+                        nextIndex = i;
+                        break;
+                    }
+                }
+
+                // If all prayers passed today, next is tomorrow's Imsak (simplified for demo)
+                if (nextIndex === -1) {
+                    document.getElementById('nextPrayerName').innerText = 'Imsak (Besok)';
+                    document.getElementById('countdown').innerText = '--:--:--';
+                    return;
+                }
+
+                document.getElementById('nextPrayerName').innerText = prayerNames[nextIndex];
+                
+                // Highlight active prayer card
+                document.querySelectorAll('.glass').forEach(el => el.classList.remove('active-prayer'));
+                const activeCard = document.getElementById(`prayer-${nextIndex}`);
+                if (activeCard) activeCard.classList.add('active-prayer');
+
+                const diff = times[nextIndex] - now;
+                const hours = Math.floor(diff / 3600);
+                const mins = Math.floor((diff % 3600) / 60);
+                const secs = diff % 60;
+
+                document.getElementById('countdown').innerText = 
+                    `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').innerText = new Date().toLocaleDateString('ms-MY', options);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waktu Solat - Pilih Zon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="bg-[#011612] text-slate-100 min-h-screen">
+
+    <!-- Navigation -->
+    <header class="bg-[#022c22]/80 backdrop-blur-md sticky top-0 z-50 border-b border-emerald-900/50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="../index.html" class="text-emerald-500 hover:text-emerald-400 transition-colors" title="Back to Hub">
+                    <i class="fa-solid fa-grip-vertical text-2xl"></i>
+                </a>
+                <h1 class="text-xl font-extrabold tracking-tight text-emerald-500">SOLATHUB</h1>
+            </div>
+            <nav class="flex items-center gap-6 text-sm font-semibold">
+                <a href="index.html" class="text-slate-400 hover:text-emerald-400 transition-colors">Utama</a>
+                <a href="calendar.html" class="text-slate-400 hover:text-emerald-400 transition-colors">Kalendar</a>
+                <a href="zones.html" class="text-emerald-400 border-b-2 border-emerald-400 pb-1">Zon</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-black mb-4">Pilih Kawasan Anda</h2>
+                <p class="text-slate-500">Sila pilih negeri dan zon untuk mendapatkan waktu solat yang tepat.</p>
+            </div>
+
+            <div class="relative mb-10">
+                <input type="text" id="zoneSearch" placeholder="Cari bandar atau zon (e.g. Shah Alam, Kuantan...)" 
+                    class="w-full bg-slate-900 border border-slate-800 rounded-2xl py-4 px-6 pl-14 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                <i class="fa-solid fa-magnifying-glass absolute left-6 top-5 text-slate-600"></i>
+            </div>
+
+            <div id="zonesContainer" class="space-y-8">
+                <!-- States and Zones will be injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Data sample (Reduced for brevity, in production you'd have the full JAKIM list)
+        const zoneData = [
+            {
+                state: "Selangor",
+                zones: [
+                    { id: "SGR01", name: "Gombak, Petaling, Sepang, Hulu Langat, Hulu Selangor, S.Alam" },
+                    { id: "SGR02", name: "Kuala Selangor, Sabak Bernam" },
+                    { id: "SGR03", name: "Klang, Kuala Langat" }
+                ]
+            },
+            {
+                state: "W. Persekutuan",
+                zones: [
+                    { id: "WLY01", name: "Kuala Lumpur, Putrajaya" },
+                    { id: "WLY02", name: "Labuan" }
+                ]
+            },
+            {
+                state: "Johor",
+                zones: [
+                    { id: "JHR01", name: "Pulau Aur dan Pulau Pemanggil" },
+                    { id: "JHR02", name: "Kota Tinggi, Mersing, Johor Bahru" },
+                    { id: "JHR03", name: "Kluang, Pontian" },
+                    { id: "JHR04", name: "Batu Pahat, Muar, Segamat, Ledang" }
+                ]
+            },
+            {
+                state: "Pulau Pinang",
+                zones: [
+                    { id: "PNG01", name: "Seluruh Negeri Pulau Pinang" }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderZones(zoneData);
+            
+            document.getElementById('zoneSearch').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = zoneData.map(state => ({
+                    ...state,
+                    zones: state.zones.filter(z => z.name.toLowerCase().includes(query) || state.state.toLowerCase().includes(query))
+                })).filter(state => state.zones.length > 0);
+                renderZones(filtered);
+            });
+        });
+
+        function renderZones(data) {
+            const container = document.getElementById('zonesContainer');
+            container.innerHTML = '';
+
+            data.forEach(state => {
+                const stateSection = document.createElement('div');
+                stateSection.innerHTML = `
+                    <h3 class="text-xs font-black text-emerald-500 uppercase tracking-[0.2em] mb-4 ml-2">${state.state}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${state.zones.map(zone => `
+                            <button onclick="selectZone('${zone.id}', '${zone.name}')" 
+                                class="glass p-5 rounded-2xl text-left hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all flex justify-between items-center group">
+                                <span class="text-sm font-semibold text-slate-300 group-hover:text-white">${zone.name}</span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-700 group-hover:text-emerald-500 transition-colors"></i>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(stateSection);
+            });
+        }
+
+        function selectZone(id, name) {
+            localStorage.setItem('selectedZone', id);
+            localStorage.setItem('currentZoneName', name);
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
