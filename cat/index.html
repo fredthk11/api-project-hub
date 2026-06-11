@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatHub - Discovery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
+
+    <header class="bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="../index.html" class="text-slate-500 hover:text-indigo-400 transition-colors" title="Back to Hub">
+                    <i class="fa-solid fa-grip-vertical text-2xl"></i>
+                </a>
+                <h1 class="text-3xl font-black bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent cursor-pointer">
+                    CATHUB
+                </h1>
+            </div>
+            <button id="fetch-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-full transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-shuffle"></i>
+                <span class="text-sm">New Cat</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex justify-center">
+        <div id="cat-display" class="bg-slate-900 p-6 rounded-xl shadow-lg w-full max-w-2xl text-center">
+            <div class="aspect-video w-full overflow-hidden rounded-lg mb-4">
+                <img id="cat-image" src="" alt="A cute cat" class="w-full h-full object-cover">
+            </div>
+            <p id="breed-info" class="text-slate-400 mb-4">Loading...</p>
+            <button id="save-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-full transition-colors flex items-center gap-2 mx-auto">
+                <i class="fa-solid fa-download"></i>
+                <span class="text-sm">Save Image</span>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        const catImage = document.getElementById('cat-image');
+        const breedInfo = document.getElementById('breed-info');
+        const fetchBtn = document.getElementById('fetch-btn');
+        const saveBtn = document.getElementById('save-btn');
+
+        async function fetchCat() {
+            try {
+                breedInfo.textContent = 'Loading...';
+                saveBtn.classList.add('hidden');
+                const response = await fetch('https://api.thecatapi.com/v1/images/search');
+                const data = await response.json();
+                
+                if (data.length > 0) {
+                    catImage.src = data[0].url;
+                    breedInfo.textContent = 'Found a cute cat!';
+                    saveBtn.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching cat:', error);
+                breedInfo.textContent = 'Failed to load cat. Try again!';
+            }
+        }
+
+        async function saveCat() {
+            try {
+                const response = await fetch(catImage.src);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cute-cat.jpg';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error saving image:', error);
+                alert('Failed to save image.');
+            }
+        }
+
+        fetchBtn.addEventListener('click', fetchCat);
+        saveBtn.addEventListener('click', saveCat);
+
+        // Initial fetch
+        fetchCat();
+    </script>
+</body>
+</html>

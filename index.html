@@ -69,14 +69,27 @@
                 </div>
             </a>
 
-            <!-- Future Project Placeholder (Template) -->
-            <div class="bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center p-8 text-center opacity-50">
-                <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                    <i class="fa-solid fa-plus text-slate-600 text-2xl"></i>
+            <!-- Project Card: CatHub -->
+            <a href="./cat/index.html" class="group block relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 transition-all hover:border-pink-500/50 hover:shadow-2xl hover:shadow-pink-500/10">
+                <div class="aspect-video bg-pink-900/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-cat text-6xl text-pink-500 group-hover:scale-110 transition-transform"></i>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
                 </div>
-                <h3 class="font-bold text-slate-600">New API Project</h3>
-                <p class="text-slate-700 text-sm mt-2">Add a new folder and link it here to expand your portfolio.</p>
-            </div>
+                <div class="p-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="bg-pink-500/10 text-pink-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">REST API</span>
+                        <span class="bg-slate-800 text-slate-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">Completed</span>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-3 group-hover:text-pink-400 transition-colors">CatHub Discovery</h2>
+                    <p class="text-slate-400 mb-6 line-clamp-2">
+                        A simple, playful web application displaying random cat images fetched dynamically from TheCatAPI.
+                    </p>
+                    <div class="inline-flex items-center gap-2 bg-pink-600 group-hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                        Launch App
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </div>
+                </div>
+            </a>
 
         </div>
     </main>
