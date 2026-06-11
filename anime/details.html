@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeHub - Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
+
+    <!-- Header -->
+    <header class="bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="window.history.back()" class="hover:bg-slate-800 p-2 rounded-full transition-colors">
+                    <i class="fa-solid fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold truncate max-w-[200px] sm:max-w-md" id="headerTitle">Loading...</h1>
+            </div>
+            <a href="watchlist.html" class="text-slate-400 hover:text-pink-500 transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-heart"></i>
+                <span class="hidden sm:inline">Watchlist</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Hero Section -->
+        <section id="heroSection" class="flex flex-col md:flex-row gap-8 mb-12 opacity-0 transition-opacity duration-500">
+            <div class="w-full md:w-1/3 lg:w-1/4">
+                <img id="animeImg" src="" alt="" class="w-full rounded-2xl shadow-2xl border border-slate-800">
+                <button id="watchlistBtn" onclick="toggleWatchlist()" class="w-full mt-4 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    Add to Watchlist
+                </button>
+            </div>
+            
+            <div class="flex-grow">
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <span id="animeScore" class="bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-star"></i> 0.0
+                    </span>
+                    <span id="animeType" class="bg-indigo-500/10 text-indigo-500 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider">TV</span>
+                    <span id="animeStatus" class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider">Airing</span>
+                </div>
+                
+                <h2 id="animeTitle" class="text-4xl md:text-5xl font-black mb-6 leading-tight">Anime Title</h2>
+                
+                <div id="animeGenres" class="flex flex-wrap gap-2 mb-8">
+                    <!-- Genres injected here -->
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                    <div>
+                        <p class="text-slate-500 text-xs uppercase tracking-widest font-bold mb-1">Episodes</p>
+                        <p id="animeEpisodes" class="text-lg font-bold">24</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 text-xs uppercase tracking-widest font-bold mb-1">Rank</p>
+                        <p id="animeRank" class="text-lg font-bold">#120</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 text-xs uppercase tracking-widest font-bold mb-1">Popularity</p>
+                        <p id="animePopularity" class="text-lg font-bold">#450</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 text-xs uppercase tracking-widest font-bold mb-1">Aired</p>
+                        <p id="animeAired" class="text-lg font-bold">2023</p>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold mb-3 border-l-4 border-indigo-500 pl-3">Synopsis</h3>
+                    <p id="animeSynopsis" class="text-slate-400 leading-relaxed text-lg italic">Loading synopsis...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trailer Section -->
+        <section id="trailerSection" class="mb-12 hidden">
+            <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fa-brands fa-youtube text-red-500"></i>
+                Official Trailer
+            </h3>
+            <div class="aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+                <iframe id="trailerFrame" src="" class="w-full h-full" allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <!-- Recommendations -->
+        <section>
+            <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
+                You Might Also Like
+            </h3>
+            <div id="recGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                <!-- Recommendations injected here -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-slate-800 mt-20 py-10 text-center text-slate-500 text-sm">
+        <p>Data provided by Jikan API (MyAnimeList)</p>
+        <p class="mt-2">&copy; 2026 AnimeHub. For study purposes.</p>
+    </footer>
+
+    <script>
+        const API_BASE = 'https://api.jikan.moe/v4';
+        const urlParams = new URLSearchParams(window.location.search);
+        const animeId = urlParams.get('id');
+        let currentAnime = null;
+
+        if (!animeId) window.location.href = 'index.html';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDetails();
+            fetchRecommendations();
+            updateWatchlistBtnState();
+        });
+
+        async function fetchDetails() {
+            try {
+                const res = await fetch(`${API_BASE}/anime/${animeId}/full`);
+                const { data } = await res.json();
+                currentAnime = data;
+                
+                renderDetails(data);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('headerTitle').innerText = 'Error Loading Anime';
+            }
+        }
+
+        async function fetchRecommendations() {
+            try {
+                const res = await fetch(`${API_BASE}/anime/${animeId}/recommendations`);
+                const { data } = await res.json();
+                renderRecommendations(data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderDetails(anime) {
+            document.getElementById('headerTitle').innerText = anime.title;
+            document.getElementById('animeTitle').innerText = anime.title;
+            document.getElementById('animeImg').src = anime.images.jpg.large_image_url;
+            document.getElementById('animeImg').alt = anime.title;
+            document.getElementById('animeScore').innerHTML = `<i class="fa-solid fa-star"></i> ${anime.score || 'N/A'}`;
+            document.getElementById('animeType').innerText = anime.type || 'TV';
+            document.getElementById('animeStatus').innerText = anime.status;
+            document.getElementById('animeEpisodes').innerText = anime.episodes || '??';
+            document.getElementById('animeRank').innerText = `#${anime.rank || 'N/A'}`;
+            document.getElementById('animePopularity').innerText = `#${anime.popularity || 'N/A'}`;
+            document.getElementById('animeAired').innerText = anime.aired.prop.from.year || 'N/A';
+            document.getElementById('animeSynopsis').innerText = anime.synopsis || 'No synopsis available.';
+
+            // Genres
+            const genresContainer = document.getElementById('animeGenres');
+            genresContainer.innerHTML = '';
+            anime.genres.forEach(g => {
+                const tag = document.createElement('span');
+                tag.className = 'bg-slate-800 text-slate-300 px-3 py-1 rounded-lg text-sm font-medium border border-slate-700';
+                tag.innerText = g.name;
+                genresContainer.appendChild(tag);
+            });
+
+            // Trailer
+            if (anime.trailer && anime.trailer.embed_url) {
+                document.getElementById('trailerSection').classList.remove('hidden');
+                document.getElementById('trailerFrame').src = anime.trailer.embed_url;
+            }
+
+            document.getElementById('heroSection').classList.remove('opacity-0');
+        }
+
+        function renderRecommendations(recs) {
+            const container = document.getElementById('recGrid');
+            container.innerHTML = '';
+            
+            if (!recs || recs.length === 0) {
+                container.innerHTML = '<p class="col-span-full text-slate-500">No recommendations found.</p>';
+                return;
+            }
+
+            // Show top 6 recommendations
+            recs.slice(0, 6).forEach(rec => {
+                const anime = rec.entry;
+                const card = document.createElement('div');
+                card.className = 'group relative bg-slate-900 rounded-xl overflow-hidden shadow-lg cursor-pointer transition-transform hover:-translate-y-2';
+                card.onclick = () => window.location.href = `details.html?id=${anime.mal_id}`;
+                
+                card.innerHTML = `
+                    <div class="aspect-[3/4] relative overflow-hidden">
+                        <img src="${anime.images.jpg.large_image_url}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-xs font-bold truncate group-hover:text-indigo-400 transition-colors">${anime.title}</h3>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Watchlist Logic
+        function toggleWatchlist() {
+            if (!currentAnime) return;
+            
+            let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+            const index = watchlist.findIndex(a => a.id === currentAnime.mal_id);
+            
+            if (index > -1) {
+                // Remove
+                watchlist.splice(index, 1);
+            } else {
+                // Add
+                watchlist.push({
+                    id: currentAnime.mal_id,
+                    title: currentAnime.title,
+                    image: currentAnime.images.jpg.image_url
+                });
+            }
+            
+            localStorage.setItem('watchlist', JSON.stringify(watchlist));
+            updateWatchlistBtnState();
+        }
+
+        function updateWatchlistBtnState() {
+            const watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+            const isInWatchlist = watchlist.some(a => a.id == animeId);
+            const btn = document.getElementById('watchlistBtn');
+            
+            if (isInWatchlist) {
+                btn.innerHTML = `<i class="fa-solid fa-heart-circle-minus"></i> Remove from Watchlist`;
+                btn.classList.replace('bg-slate-800', 'bg-pink-600');
+                btn.classList.replace('hover:bg-slate-700', 'hover:bg-pink-500');
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-plus"></i> Add to Watchlist`;
+                btn.classList.replace('bg-pink-600', 'bg-slate-800');
+                btn.classList.replace('hover:bg-pink-500', 'hover:bg-slate-700');
+            }
+        }
+    </script>
+</body>
+</html>

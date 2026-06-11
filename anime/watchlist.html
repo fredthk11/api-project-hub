@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeHub - My Watchlist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
+
+    <!-- Navigation -->
+    <header class="bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-3xl font-black bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent cursor-pointer" onclick="window.location.href='index.html'">
+                ANIMEHUB
+            </h1>
+            <button onclick="window.location.href='index.html'" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2 rounded-full transition-all flex items-center gap-2">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+            <div>
+                <h2 class="text-4xl font-black mb-2 flex items-center gap-4">
+                    <i class="fa-solid fa-heart text-pink-500"></i>
+                    My Watchlist
+                </h2>
+                <p class="text-slate-500">Track and manage your favorite anime series.</p>
+            </div>
+            <div id="watchlistStats" class="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex gap-6">
+                <div class="text-center">
+                    <p class="text-xs text-slate-500 uppercase font-bold mb-1">Total</p>
+                    <p id="totalCount" class="text-xl font-bold text-indigo-400">0</p>
+                </div>
+                <div class="w-[1px] bg-slate-800"></div>
+                <button onclick="clearWatchlist()" class="text-xs text-red-500 hover:text-red-400 font-bold uppercase transition-colors">
+                    Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Watchlist Grid -->
+        <div id="watchlistGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            <!-- Items injected here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-32 h-32 bg-slate-900 rounded-full flex items-center justify-center mb-6 border border-slate-800">
+                <i class="fa-solid fa-bookmark text-slate-700 text-5xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">Your watchlist is empty</h3>
+            <p class="text-slate-500 mb-8 max-w-md">Start exploring the trending list and add your favorite anime to keep track of them here!</p>
+            <button onclick="window.location.href='index.html'" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20">
+                Explore Anime
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="border-t border-slate-800 mt-20 py-10 text-center text-slate-500 text-sm">
+        <p>&copy; 2026 AnimeHub. All data from Jikan API.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', renderWatchlist);
+
+        function renderWatchlist() {
+            const watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+            const grid = document.getElementById('watchlistGrid');
+            const emptyState = document.getElementById('emptyState');
+            const totalCount = document.getElementById('totalCount');
+            
+            totalCount.innerText = watchlist.length;
+            grid.innerHTML = '';
+
+            if (watchlist.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            watchlist.forEach(anime => {
+                const card = document.createElement('div');
+                card.className = 'group relative bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-800 transition-all hover:-translate-y-2 hover:border-indigo-500/50';
+                card.onclick = () => window.location.href = `details.html?id=${anime.id}`;
+                
+                card.innerHTML = `
+                    <div class="aspect-[3/4] relative overflow-hidden">
+                        <img src="${anime.image}" alt="${anime.title}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity"></div>
+                        <button onclick="removeFromWatchlist(event, ${anime.id})" class="absolute top-3 right-3 bg-pink-600 hover:bg-pink-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-2xl opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-sm line-clamp-2 group-hover:text-indigo-400 transition-colors">${anime.title}</h3>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function removeFromWatchlist(event, id) {
+            event.stopPropagation();
+            let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+            watchlist = watchlist.filter(a => a.id !== id);
+            localStorage.setItem('watchlist', JSON.stringify(watchlist));
+            renderWatchlist();
+        }
+
+        function clearWatchlist() {
+            if (confirm('Are you sure you want to clear your entire watchlist?')) {
+                localStorage.setItem('watchlist', '[]');
+                renderWatchlist();
+            }
+        }
+    </script>
+</body>
+</html>
