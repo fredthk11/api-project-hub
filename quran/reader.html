@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuranHub - Reader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
+
+    <header class="bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="index.html" class="text-slate-500 hover:text-emerald-400 transition-colors" title="Back to Index">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </a>
+            <h1 id="surahTitle" class="text-xl font-bold text-emerald-400">Loading...</h1>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div id="readerContent" class="space-y-6">
+            <!-- Verses injected here -->
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = 'https://api.alquran.cloud/v1';
+        const readerContent = document.getElementById('readerContent');
+        const surahTitle = document.getElementById('surahTitle');
+        const urlParams = new URLSearchParams(window.location.search);
+        const surahId = urlParams.get('id');
+
+        async function fetchSurah() {
+            try {
+                // Fetching Arabic text and Malay translation
+                const res = await fetch(`${API_BASE}/surah/${surahId}/editions/quran-uthmani,ms.basmeih`);
+                const data = await res.json();
+                renderReader(data.data);
+            } catch (err) {
+                console.error(err);
+                readerContent.innerHTML = '<p class="text-red-400">Failed to load Surah.</p>';
+            }
+        }
+
+        function renderReader(editions) {
+            const arabicVerses = editions[0].ayahs;
+            const malayVerses = editions[1].ayahs;
+            surahTitle.innerText = editions[0].englishName;
+
+            readerContent.innerHTML = '';
+            arabicVerses.forEach((verse, index) => {
+                const verseDiv = document.createElement('div');
+                verseDiv.className = 'border-b border-slate-800 pb-6';
+                verseDiv.innerHTML = `
+                    <p class="text-right text-3xl font-serif mb-4 leading-loose">${verse.text}</p>
+                    <p class="text-lg text-slate-400">${malayVerses[index].text}</p>
+                `;
+                readerContent.appendChild(verseDiv);
+            });
+        }
+
+        if (surahId) {
+            fetchSurah();
+        } else {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

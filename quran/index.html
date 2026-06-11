@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuranHub - Discovery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
+
+    <header class="bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="../index.html" class="text-slate-500 hover:text-emerald-400 transition-colors" title="Back to Hub">
+                    <i class="fa-solid fa-grip-vertical text-2xl"></i>
+                </a>
+                <h1 class="text-3xl font-black bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent cursor-pointer">
+                    QURANHUB
+                </h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+            <i class="fa-solid fa-book text-emerald-500"></i>
+            Surah Index
+        </h2>
+        
+        <div id="surahGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Surah list injected here -->
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = 'https://api.alquran.cloud/v1';
+        const surahGrid = document.getElementById('surahGrid');
+
+        async function fetchSurahs() {
+            try {
+                const res = await fetch(`${API_BASE}/surah`);
+                const data = await res.json();
+                renderSurahs(data.data);
+            } catch (err) {
+                console.error(err);
+                surahGrid.innerHTML = '<p class="text-red-400">Failed to load Surahs.</p>';
+            }
+        }
+
+        function renderSurahs(surahs) {
+            surahGrid.innerHTML = '';
+            surahs.forEach(surah => {
+                const card = document.createElement('a');
+                card.href = `reader.html?id=${surah.number}`;
+                card.className = 'bg-slate-900 p-6 rounded-xl hover:border-emerald-500 border border-slate-800 transition-all cursor-pointer group';
+                card.innerHTML = `
+                    <h3 class="font-bold text-lg group-hover:text-emerald-400">${surah.englishName}</h3>
+                    <p class="text-sm text-slate-400">${surah.englishNameTranslation} • ${surah.numberOfAyahs} Ayahs</p>
+                `;
+                surahGrid.appendChild(card);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchSurahs);
+    </script>
+</body>
+</html>
