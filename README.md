@@ -1,4 +1,4 @@
-# API Project Hub 🚀
+# API Project Page 🚀
 
 **Live Demo:** [fredthk11.github.io/api-project-hub](https://fredthk11.github.io/api-project-hub/)
 
@@ -8,8 +8,10 @@ A modern, high-performance portfolio of web applications powered by various publ
 
 | Project | API Source | Status | Link |
 | :--- | :--- | :--- | :--- |
-| **AnimeHub** | Jikan API (MAL) | ✅ Completed | [/anime](/anime/index.html) |
-| **SolatHub** | WaktuSolat.app | ✅ Completed | [/solat](/solat/index.html) |
+| **AnimePage** | Jikan API (MAL) | ✅ Completed | [/anime](/anime/index.html) |
+| **SolatPage** | WaktuSolat.app | ✅ Completed | [/solat](/solat/index.html) |
+| **CatPage** | TheCatAPI | ✅ Completed | [/cat](/cat/index.html) |
+| **QuranPage** | Al-Quran Cloud API | ✅ Completed | [/quran](/quran/index.html) |
 | **WeatherDash** | OpenWeather | 🏗️ Planned | TBD |
 | **MovieVault** | TMDB | 🏗️ Planned | TBD |
 
@@ -39,3 +41,5 @@ A modern, high-performance portfolio of web applications powered by various publ
 
 ## 📜 License
 This project is for study and portfolio purposes. Feel free to use the code as a reference!
+---
+This README.md is automatically generated and updated by the Gemini CLI.
