@@ -71,19 +71,18 @@
 
         async function saveCat() {
             try {
-                const response = await fetch(catImage.src);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+                // Using an anchor tag to trigger download directly, 
+                // which often bypasses fetch CORS if the browser allows it.
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = catImage.src;
                 a.download = 'cute-cat.jpg';
+                a.target = '_blank';
                 document.body.appendChild(a);
                 a.click();
-                window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
             } catch (error) {
                 console.error('Error saving image:', error);
-                alert('Failed to save image.');
+                alert('Failed to save image. The browser might be blocking cross-origin downloads.');
             }
         }
 
