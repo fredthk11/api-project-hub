@@ -35,12 +35,30 @@
 
     <main class="container mx-auto px-4 py-8">
         
+        <!-- Location Picker -->
+        <section class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="relative">
+                <label class="block text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2 ml-1">Pilih Negeri</label>
+                <select id="stateSelect" onchange="handleStateChange()" class="w-full bg-slate-900 border border-slate-800 rounded-2xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm appearance-none">
+                    <option value="">-- Pilih Negeri --</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-4 top-[2.4rem] text-slate-600 pointer-events-none"></i>
+            </div>
+            <div class="relative">
+                <label class="block text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2 ml-1">Pilih Daerah / Zon</label>
+                <select id="zoneSelect" onchange="handleZoneChange()" class="w-full bg-slate-900 border border-slate-800 rounded-2xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm appearance-none" disabled>
+                    <option value="">-- Pilih Daerah --</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-4 top-[2.4rem] text-slate-600 pointer-events-none"></i>
+            </div>
+        </section>
+
         <!-- Hero: Countdown -->
         <section class="emerald-gradient rounded-[2.5rem] p-8 md:p-16 mb-12 shadow-2xl shadow-emerald-950/50 relative overflow-hidden text-center">
             <div class="relative z-10">
-                <div id="currentZone" class="inline-flex items-center gap-2 bg-black/20 px-4 py-2 rounded-full text-xs font-bold text-emerald-400 mb-6 tracking-widest uppercase">
+                <div id="currentZoneDisplay" class="inline-flex items-center gap-2 bg-black/20 px-4 py-2 rounded-full text-xs font-bold text-emerald-400 mb-6 tracking-widest uppercase">
                     <i class="fa-solid fa-location-dot"></i>
-                    <span>Mengesan Lokasi...</span>
+                    <span>Sila Pilih Lokasi</span>
                 </div>
                 
                 <h2 class="text-slate-400 text-lg md:text-xl font-medium mb-2">Seterusnya: <span id="nextPrayerName" class="text-white font-bold">---</span></h2>
@@ -49,7 +67,6 @@
                 <p id="currentDate" class="text-emerald-500/80 font-medium"></p>
             </div>
             
-            <!-- Decorative Elements -->
             <div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
         </section>
@@ -65,14 +82,7 @@
             </div>
 
             <div id="prayerGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                <!-- Prayer items injected here -->
-                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
-                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
-                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
-                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
-                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
-                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
-                <div class="glass p-6 rounded-3xl animate-pulse h-32"></div>
+                <p class="col-span-full text-center py-10 text-slate-600 italic">Sila pilih lokasi anda di atas untuk memulakan.</p>
             </div>
         </section>
 
@@ -88,33 +98,82 @@
         let prayerData = null;
         let timerInterval = null;
 
+        const zoneData = [
+            { state: "Johor", zones: [ { code: "JHR01", location: "Pulau Aur dan Pulau Pemanggil" }, { code: "JHR02", location: "Johor Bahru, Kota Tinggi, Mersing" }, { code: "JHR03", location: "Kluang, Pontian" }, { code: "JHR04", location: "Batu Pahat, Muar, Segamat, Ledang" } ] },
+            { state: "Kedah", zones: [ { code: "KDH01", location: "Kota Setar, Kubang Pasu, Pokok Sena" }, { code: "KDH02", location: "Kuala Muda, Yan, Pendang" }, { code: "KDH03", location: "Padang Terap, Sik" }, { code: "KDH04", location: "Baling" }, { code: "KDH05", location: "Bandar Baharu, Kulim" }, { code: "KDH06", location: "Langkawi" }, { code: "KDH07", location: "Puncak Gunung Jerai" } ] },
+            { state: "Kelantan", zones: [ { code: "KTN01", location: "Kota Bharu, Pasir Mas, Tumpat, Kuala Krai etc." }, { code: "KTN03", location: "Gua Musang, Jeli" } ] },
+            { state: "Melaka", zones: [ { code: "MLK01", location: "Seluruh Negeri Melaka" } ] },
+            { state: "Negeri Sembilan", zones: [ { code: "NGS01", location: "Tampin, Jempol" }, { code: "NGS02", location: "Seremban, Port Dickson, etc." } ] },
+            { state: "Pahang", zones: [ { code: "PHG01", location: "Pulau Tioman" }, { code: "PHG02", location: "Kuantan, Pekan, Rompin" }, { code: "PHG03", location: "Jerantut, Temerloh, Maran" }, { code: "PHG04", location: "Bentong, Lipis, Raub" }, { code: "PHG05", location: "Genting Sempah, Janda Baik" }, { code: "PHG06", location: "Cameron Highlands, Genting Highlands" } ] },
+            { state: "Perlis", zones: [ { code: "PLS01", location: "Seluruh Negeri Perlis" } ] },
+            { state: "Pulau Pinang", zones: [ { code: "PNG01", location: "Seluruh Negeri Pulau Pinang" } ] },
+            { state: "Perak", zones: [ { code: "PRK01", location: "Tapah, Slim River, Tanjung Malim" }, { code: "PRK02", location: "Ipoh, Batu Gajah, Kampar" }, { code: "PRK03", location: "Lenggong, Pengkalan Hulu, Grik" }, { code: "PRK04", location: "Temengor, Belum" }, { code: "PRK05", location: "Teluk Intan, Lumut, Sitiawan" }, { code: "PRK06", location: "Taiping, Parit Buntar" }, { code: "PRK07", location: "Bukit Larut" } ] },
+            { state: "Selangor", zones: [ { code: "SGR01", location: "Gombak, Petaling, Sepang, S.Alam" }, { code: "SGR02", location: "Kuala Selangor, Sabak Bernam" }, { code: "SGR03", location: "Klang, Kuala Langat" } ] },
+            { state: "Terengganu", zones: [ { code: "TRG01", location: "Kuala Terengganu, Marang" }, { code: "TRG02", location: "Besut, Setiu" }, { code: "TRG03", location: "Hulu Terengganu" }, { code: "TRG04", location: "Dungun, Kemaman" } ] },
+            { state: "W. Persekutuan", zones: [ { code: "WLY01", location: "Kuala Lumpur, Putrajaya" }, { code: "WLY02", location: "Labuan" } ] },
+            { state: "Sarawak", zones: [ { code: "SWK01", location: "Limbang, Lawas" }, { code: "SWK02", location: "Miri, Marudi" }, { code: "SWK03", location: "Bintulu, Belaga" }, { code: "SWK04", location: "Sibu, Mukah, Kapit" }, { code: "SWK08", location: "Kuching, Bau, Lundu" } ] },
+            { state: "Sabah", zones: [ { code: "SBH01", location: "Sandakan, Kinabatangan" }, { code: "SBH04", location: "Tawau, Semporna" }, { code: "SBH07", location: "Kota Kinabalu, Penampang, Papar" }, { code: "SBH09", location: "Beaufort, Sipitang" } ] }
+        ];
+
         document.addEventListener('DOMContentLoaded', () => {
+            populateStates();
             initApp();
             updateDate();
         });
 
-        async function initApp() {
-            const savedZone = localStorage.getItem('selectedZone');
-            if (savedZone) {
-                fetchPrayerTimes(savedZone);
-            } else {
-                detectLocation();
+        function populateStates() {
+            const stateSelect = document.getElementById('stateSelect');
+            zoneData.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.state;
+                opt.innerText = item.state;
+                stateSelect.appendChild(opt);
+            });
+        }
+
+        function handleStateChange() {
+            const stateName = document.getElementById('stateSelect').value;
+            const zoneSelect = document.getElementById('zoneSelect');
+            zoneSelect.innerHTML = '<option value="">-- Pilih Daerah --</option>';
+            
+            if (!stateName) {
+                zoneSelect.disabled = true;
+                return;
+            }
+
+            const stateObj = zoneData.find(s => s.state === stateName);
+            stateObj.zones.forEach(z => {
+                const opt = document.createElement('option');
+                opt.value = z.code;
+                opt.innerText = z.location;
+                zoneSelect.appendChild(opt);
+            });
+            zoneSelect.disabled = false;
+        }
+
+        function handleZoneChange() {
+            const zoneCode = document.getElementById('zoneSelect').value;
+            const zoneName = document.getElementById('zoneSelect').options[document.getElementById('zoneSelect').selectedIndex].text;
+            if (zoneCode) {
+                localStorage.setItem('selectedZone', zoneCode);
+                localStorage.setItem('currentZoneName', zoneName);
+                fetchPrayerTimes(zoneCode);
             }
         }
 
-        function detectLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    const { latitude, longitude } = position.coords;
-                    // For now, if no zone selected, we default to SGR01 (Selangor/PJ)
-                    // In a production app, we'd use a reverse-geocode or coordinate-to-zone API.
-                    fetchPrayerTimes('SGR01');
-                }, (error) => {
-                    console.error("Location access denied", error);
-                    fetchPrayerTimes('SGR01'); // Fallback
-                });
-            } else {
-                fetchPrayerTimes('SGR01'); // Fallback
+        async function initApp() {
+            const savedZone = localStorage.getItem('selectedZone');
+            const savedState = localStorage.getItem('selectedState');
+
+            if (savedZone) {
+                // If we have a saved zone, try to pre-select the state and zone in dropdowns
+                const stateObj = zoneData.find(s => s.zones.some(z => z.code === savedZone));
+                if (stateObj) {
+                    document.getElementById('stateSelect').value = stateObj.state;
+                    handleStateChange();
+                    document.getElementById('zoneSelect').value = savedZone;
+                }
+                fetchPrayerTimes(savedZone);
             }
         }
 
@@ -124,13 +183,9 @@
                 const data = await res.json();
                 prayerData = data.data;
                 
-                document.getElementById('currentZone').querySelector('span').innerText = data.data.place;
+                document.getElementById('currentZoneDisplay').querySelector('span').innerText = data.data.place;
                 renderPrayerTimes(data.data.times);
                 startCountdown(data.data.times);
-                
-                // Save zone name for calendar page
-                localStorage.setItem('currentZoneName', data.data.place);
-                localStorage.setItem('selectedZone', zone);
             } catch (err) {
                 console.error("Fetch error", err);
             }
@@ -141,14 +196,12 @@
             const prayerNames = ['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
             grid.innerHTML = '';
 
-            const now = new Date();
-
             times.forEach((time, index) => {
                 const prayerTime = new Date(time * 1000);
                 const timeStr = prayerTime.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
                 
                 const card = document.createElement('div');
-                card.className = `glass p-6 rounded-[2rem] text-center border transition-all hover:scale-105`;
+                card.className = `glass p-6 rounded-[2rem] text-center border border-emerald-900/20 transition-all hover:scale-105`;
                 card.id = `prayer-${index}`;
                 
                 card.innerHTML = `
@@ -167,7 +220,6 @@
                 const now = Math.floor(Date.now() / 1000);
                 let nextIndex = -1;
 
-                // Find next prayer
                 for (let i = 0; i < times.length; i++) {
                     if (times[i] > now) {
                         nextIndex = i;
@@ -175,7 +227,6 @@
                     }
                 }
 
-                // If all prayers passed today, next is tomorrow's Imsak (simplified for demo)
                 if (nextIndex === -1) {
                     document.getElementById('nextPrayerName').innerText = 'Imsak (Besok)';
                     document.getElementById('countdown').innerText = '--:--:--';
@@ -184,7 +235,6 @@
 
                 document.getElementById('nextPrayerName').innerText = prayerNames[nextIndex];
                 
-                // Highlight active prayer card
                 document.querySelectorAll('.glass').forEach(el => el.classList.remove('active-prayer'));
                 const activeCard = document.getElementById(`prayer-${nextIndex}`);
                 if (activeCard) activeCard.classList.add('active-prayer');
