@@ -21,7 +21,14 @@
                 <i class="fa-solid fa-arrow-left text-xl"></i>
             </a>
             <h1 id="surahTitle" class="text-xl font-bold text-emerald-400">Loading...</h1>
-            <div class="w-6"></div> <!-- Spacer -->
+            <div class="flex items-center gap-2">
+                <select id="verseSelect" class="bg-slate-800 text-sm text-white rounded-lg px-2 py-1 border border-slate-700">
+                    <option value="">Verse</option>
+                </select>
+                <button id="jumpBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm px-3 py-1 rounded-lg transition-colors">
+                    Jump
+                </button>
+            </div>
         </div>
     </header>
 
@@ -35,20 +42,43 @@
         const API_BASE = 'https://api.alquran.cloud/v1';
         const readerContent = document.getElementById('readerContent');
         const surahTitle = document.getElementById('surahTitle');
+        const verseSelect = document.getElementById('verseSelect');
+        const jumpBtn = document.getElementById('jumpBtn');
         const urlParams = new URLSearchParams(window.location.search);
         const surahId = urlParams.get('id');
 
         async function fetchSurah() {
             try {
-                // Fetching Arabic text and Malay translation
                 const res = await fetch(`${API_BASE}/surah/${surahId}/editions/quran-uthmani,ms.basmeih`);
                 const data = await res.json();
                 renderReader(data.data);
+                populateVerseDropdown(data.data[0].ayahs.length);
             } catch (err) {
                 console.error(err);
                 readerContent.innerHTML = '<p class="text-red-400">Failed to load Surah.</p>';
             }
         }
+
+        function populateVerseDropdown(totalVerses) {
+            verseSelect.innerHTML = '<option value="">Verse</option>';
+            for (let i = 1; i <= totalVerses; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                verseSelect.appendChild(option);
+            }
+        }
+
+        function jumpToVerse() {
+            const verseNumber = verseSelect.value;
+            if (!verseNumber) return;
+            const element = document.getElementById(`verse-${verseNumber}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        jumpBtn.addEventListener('click', jumpToVerse);
 
         function renderReader(editions) {
             const arabicVerses = editions[0].ayahs;
@@ -58,6 +88,7 @@
             readerContent.innerHTML = '';
             arabicVerses.forEach((verse, index) => {
                 const verseDiv = document.createElement('div');
+                verseDiv.id = `verse-${verse.numberInSurah}`;
                 verseDiv.className = 'border-b border-slate-800 pb-6';
                 verseDiv.innerHTML = `
                     <div class="flex items-start gap-4 mb-4">
