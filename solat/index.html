@@ -193,29 +193,43 @@
                     const data = await res.json();
                     
                     if (data && data.zone) {
-                        // Update UI dropdowns
-                        document.getElementById('stateSelect').value = data.negeri;
-                        handleStateChange();
-                        document.getElementById('zoneSelect').value = data.zone;
-
-                        // Save to localStorage
+                        // 1. Overwrite all localStorage immediately
                         localStorage.setItem('selectedZone', data.zone);
                         localStorage.setItem('currentZoneName', data.daerah);
                         localStorage.setItem('selectedState', data.negeri);
 
-                        // Fetch times
-                        fetchPrayerTimes(data.zone);
+                        // 2. Try to update UI dropdowns (with fuzzy matching for states)
+                        const matchedState = zoneData.find(s => 
+                            s.state.toLowerCase().includes(data.negeri.toLowerCase()) || 
+                            data.negeri.toLowerCase().includes(s.state.toLowerCase().replace('w. ', ''))
+                        );
+
+                        if (matchedState) {
+                            document.getElementById('stateSelect').value = matchedState.state;
+                            handleStateChange();
+                            document.getElementById('zoneSelect').value = data.zone;
+                        }
+
+                        // 3. Fetch and update the display
+                        await fetchPrayerTimes(data.zone);
+                        
+                        // 4. Visual Confirmation
+                        btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Berjaya!';
+                        btn.classList.replace('bg-slate-800', 'bg-emerald-600');
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.classList.replace('bg-emerald-600', 'bg-slate-800');
+                        }, 2000);
                     }
                 } catch (err) {
                     console.error(err);
                     alert('Gagal mengesan lokasi secara automatik.');
                 } finally {
-                    btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
             }, (error) => {
                 console.error(error);
-                alert('Akses lokasi dinafikan atau gagal.');
+                alert('Akses lokasi dinafikan atau gagal. Pastikan GPS dihidupkan.');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             });
