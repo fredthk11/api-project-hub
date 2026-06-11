@@ -194,8 +194,10 @@
                 
                 if (todayData) {
                     prayerData = todayData;
-                    const times = [todayData.fajr, todayData.syuruk, todayData.dhuhr, todayData.asr, todayData.maghrib, todayData.isha];
-                    const labels = ['Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
+                    // Imsak is 10 minutes (600 seconds) before Fajr
+                    const imsak = todayData.fajr - 600;
+                    const times = [imsak, todayData.fajr, todayData.syuruk, todayData.dhuhr, todayData.asr, todayData.maghrib, todayData.isha];
+                    const labels = ['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
                     
                     document.getElementById('currentZoneDisplay').querySelector('span').innerText = localStorage.getItem('currentZoneName');
                     renderPrayerTimes(times, labels);

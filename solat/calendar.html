@@ -125,16 +125,19 @@
                 const isToday = p.day === today;
                 const rowClass = isToday ? 'today-row' : '';
                 
+                const dateStr = `${p.day} ${currentMonthName}`;
+                
+                // Imsak is 10 minutes (600 seconds) before Fajr
+                const imsak = p.fajr - 600;
+                const times = [imsak, p.fajr, p.syuruk, p.dhuhr, p.asr, p.maghrib, p.isha];
+
                 const tr = document.createElement('tr');
                 tr.className = `border-b border-emerald-900/20 hover:bg-emerald-900/10 transition-colors ${rowClass}`;
-                
-                const dateStr = `${p.day} ${currentMonthName}`;
-                const times = [p.fajr, p.syuruk, p.dhuhr, p.asr, p.maghrib, p.isha];
 
                 tr.innerHTML = `
                     <td class="p-6 font-bold text-slate-300">${dateStr}</td>
                     ${times.map(t => {
-                        return `<td class="p-6">${new Date(t * 1000).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })}</td>`;
+                        return `<td class="p-6 text-slate-400">${new Date(t * 1000).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })}</td>`;
                     }).join('')}
                 `;
                 body.appendChild(tr);
@@ -145,7 +148,7 @@
                 card.innerHTML = `
                     <p class="font-bold text-emerald-500 mb-4">${dateStr}</p>
                     <div class="grid grid-cols-2 gap-4 text-xs">
-                        ${['Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'].map((name, i) => `
+                        ${['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'].map((name, i) => `
                             <div class="flex justify-between border-b border-emerald-900/20 pb-1">
                                 <span class="text-slate-500">${name}</span>
                                 <span class="font-bold">${new Date(times[i] * 1000).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })}</span>
