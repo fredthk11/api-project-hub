@@ -9,6 +9,7 @@ A modern, high-performance portfolio of web applications powered by various publ
 | Project | API Source | Status | Link |
 | :--- | :--- | :--- | :--- |
 | **AnimeHub** | Jikan API (MAL) | ✅ Completed | [/anime](/anime/index.html) |
+| **SolatHub** | WaktuSolat.app | ✅ Completed | [/solat](/solat/index.html) |
 | **WeatherDash** | OpenWeather | 🏗️ Planned | TBD |
 | **MovieVault** | TMDB | 🏗️ Planned | TBD |
 
