@@ -98,7 +98,7 @@
     </footer>
 
     <script>
-        const API_BASE = 'https://mpt.i906.my/api/prayer';
+        const API_BASE = 'https://api.waktusolat.app/v2/solat';
         let prayerData = null;
         let timerInterval = null;
 
@@ -188,40 +188,46 @@
             try {
                 const res = await fetch(`${API_BASE}/${zone}`);
                 const data = await res.json();
-                prayerData = data.data;
                 
-                document.getElementById('currentZoneDisplay').querySelector('span').innerText = data.data.place;
-                renderPrayerTimes(data.data.times);
-                startCountdown(data.data.times);
+                // Get today's prayer times from the array
+                const today = new Date().getDate();
+                const todayData = data.prayers.find(p => p.day === today);
+                
+                if (todayData) {
+                    prayerData = todayData;
+                    const times = [todayData.fajr, todayData.syuruk, todayData.dhuhr, todayData.asr, todayData.maghrib, todayData.isha];
+                    const labels = ['Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
+                    
+                    document.getElementById('currentZoneDisplay').querySelector('span').innerText = localStorage.getItem('currentZoneName');
+                    renderPrayerTimes(times, labels);
+                    startCountdown(times, labels);
+                }
             } catch (err) {
                 console.error("Fetch error", err);
             }
         }
 
-        function renderPrayerTimes(times) {
+        function renderPrayerTimes(times, labels) {
             const grid = document.getElementById('prayerGrid');
-            const prayerNames = ['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
             grid.innerHTML = '';
 
             times.forEach((time, index) => {
-                const prayerTime = new Date(time * 1000);
-                const timeStr = prayerTime.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
+                const timeStr = new Date(time * 1000).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', hour12: true });
                 
                 const card = document.createElement('div');
                 card.className = `glass p-6 rounded-[2rem] text-center border border-emerald-900/20 transition-all hover:scale-105`;
                 card.id = `prayer-${index}`;
                 
                 card.innerHTML = `
-                    <p class="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2">${prayerNames[index]}</p>
+                    <p class="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2">${labels[index]}</p>
                     <p class="text-2xl font-black">${timeStr}</p>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        function startCountdown(times) {
+        function startCountdown(times, labels) {
             clearInterval(timerInterval);
-            const prayerNames = ['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
 
             timerInterval = setInterval(() => {
                 const now = Math.floor(Date.now() / 1000);
@@ -240,7 +246,7 @@
                     return;
                 }
 
-                document.getElementById('nextPrayerName').innerText = prayerNames[nextIndex];
+                document.getElementById('nextPrayerName').innerText = labels[nextIndex];
                 
                 document.querySelectorAll('.glass').forEach(el => el.classList.remove('active-prayer'));
                 const activeCard = document.getElementById(`prayer-${nextIndex}`);

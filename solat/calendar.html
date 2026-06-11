@@ -90,82 +90,72 @@
     </main>
 
     <script>
-        const API_BASE = 'https://mpt.i906.my/api/prayer';
-        const currentMonth = new Date().getMonth() + 1;
+        const API_BASE = 'https://api.waktusolat.app/v2/solat';
         
         document.addEventListener('DOMContentLoaded', () => {
+            const currentMonth = new Date().getMonth() + 1;
             document.getElementById('monthSelect').value = currentMonth;
-            document.getElementById('zoneNameDisplay').innerText = localStorage.getItem('currentZoneName') || 'SGR01';
+            document.getElementById('zoneNameDisplay').innerText = localStorage.getItem('currentZoneName') || 'Pilih Zon';
             fetchMonthly();
         });
 
         async function fetchMonthly() {
-            const zone = localStorage.getItem('selectedZone') || 'SGR01';
-            const month = document.getElementById('monthSelect').value;
-            const year = new Date().getFullYear();
-            
+            const zone = localStorage.getItem('selectedZone');
+            if (!zone) return;
+
             try {
-                // The API provides daily, weekly, monthly. For simplicity, we fetch the base endpoint 
-                // and for a production app, we would use the specific monthly endpoint if available.
-                // Currently, mpt.i906.my usually returns daily times. Let's adjust for a monthly view.
                 const res = await fetch(`${API_BASE}/${zone}`);
                 const data = await res.json();
-                
-                // Note: The community API mpt.i906.my primarily returns current day.
-                // For a full monthly calendar, we'd typically loop or use an API that supports month range.
-                // For this portfolio, we will simulate the monthly view using the current data.
-                renderTable(data.data.times);
+                renderTable(data.prayers);
             } catch (err) {
                 console.error(err);
             }
         }
 
-        function renderTable(times) {
+        function renderTable(prayers) {
             const body = document.getElementById('calendarBody');
             const mobileList = document.getElementById('mobileList');
             body.innerHTML = '';
             mobileList.innerHTML = '';
 
             const today = new Date().getDate();
+            const monthNames = ["Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"];
+            const currentMonthName = monthNames[new Date().getMonth()];
 
-            // Simulating a full month by repeating data for demo purposes if API doesn't provide full month
-            // (In a real JAKIM app, you'd fetch the full month JSON)
-            for (let day = 1; day <= 31; day++) {
-                const isToday = day === today;
+            prayers.forEach(p => {
+                const isToday = p.day === today;
                 const rowClass = isToday ? 'today-row' : '';
                 
                 const tr = document.createElement('tr');
                 tr.className = `border-b border-emerald-900/20 hover:bg-emerald-900/10 transition-colors ${rowClass}`;
                 
-                const dateStr = `${day} ${document.getElementById('monthSelect').options[document.getElementById('monthSelect').selectedIndex].text}`;
+                const dateStr = `${p.day} ${currentMonthName}`;
+                const times = [p.fajr, p.syuruk, p.dhuhr, p.asr, p.maghrib, p.isha];
 
                 tr.innerHTML = `
                     <td class="p-6 font-bold text-slate-300">${dateStr}</td>
                     ${times.map(t => {
-                        const time = new Date(t * 1000);
-                        return `<td class="p-6">${time.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })}</td>`;
+                        return `<td class="p-6">${new Date(t * 1000).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })}</td>`;
                     }).join('')}
                 `;
                 body.appendChild(tr);
 
                 // Mobile Card
-                if (isToday || day % 5 === 0) { // Limit mobile view for cleaner look in demo
-                    const card = document.createElement('div');
-                    card.className = `glass p-6 rounded-3xl ${rowClass}`;
-                    card.innerHTML = `
-                        <p class="font-bold text-emerald-500 mb-4">${dateStr}</p>
-                        <div class="grid grid-cols-2 gap-4 text-xs">
-                            ${['Imsak', 'Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'].map((name, i) => `
-                                <div class="flex justify-between border-b border-emerald-900/20 pb-1">
-                                    <span class="text-slate-500">${name}</span>
-                                    <span class="font-bold">${new Date(times[i] * 1000).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                    mobileList.appendChild(card);
-                }
-            }
+                const card = document.createElement('div');
+                card.className = `glass p-6 rounded-3xl ${rowClass}`;
+                card.innerHTML = `
+                    <p class="font-bold text-emerald-500 mb-4">${dateStr}</p>
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        ${['Subuh', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak'].map((name, i) => `
+                            <div class="flex justify-between border-b border-emerald-900/20 pb-1">
+                                <span class="text-slate-500">${name}</span>
+                                <span class="font-bold">${new Date(times[i] * 1000).toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                mobileList.appendChild(card);
+            });
         }
     </script>
 </body>
