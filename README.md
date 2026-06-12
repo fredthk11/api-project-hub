@@ -11,7 +11,7 @@ Projects are organized into category subdirectories:
 | Category | Description | Link |
 | :--- | :--- | :--- |
 | **API Projects** | Web apps powered by REST/GraphQL APIs | [/api](/api/index.html) |
-| *Coming Soon* | *New categories (e.g., games, tools)* | *TBD* |
+| **Games** | Experimental interactive projects | [/games](/games/index.html) |
 
 ---
 
