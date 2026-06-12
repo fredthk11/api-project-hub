@@ -1,9 +1,9 @@
 # Project Context: API Project Hub
 
 ## Project Overview
-This repository is a showcase of interactive web applications, organized by category (e.g., `/api/`, and future categories like `/games/`). 
+This repository is a showcase of interactive web applications, organized by category (e.g., `/api/`, `/games/`). 
 - **Root `index.html`:** Acts as the master homepage to navigate to different project categories.
-- **Category Directories:** Each category (e.g., `api/`) contains its own `index.html` dashboard listing projects within that category.
+- **Category Directories:** Each category (e.g., `api/`, `games/`) contains its own `index.html` dashboard listing projects within that category.
 
 ## Technologies
 - **Frontend:** HTML5, Vanilla JavaScript (ES6+).
