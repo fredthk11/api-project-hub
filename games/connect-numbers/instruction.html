@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Connect Numbers - Instructions</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #2e3b4e; /* dark blue-grey */
+    color: #f0f4f8;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+
+  h1 { text-align: center; margin-bottom: 10px; }
+  h2 { color: #dce6f2; margin-top: 20px; }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .top-bar a {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #4caf50;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+  .top-bar a:hover {
+    background: #3d8b40;
+  }
+
+  .instructions {
+    max-width: 700px;
+    margin: auto;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  ul {
+    text-align: left;
+    padding-left: 20px;
+  }
+
+  .highlight {
+    color: #4caf50;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="index.html">⬅ Home</a>
+    <a href="connect_numbers.html">🔗 Connect Numbers</a>
+  </div>
+
+  <h1>📖 How to Play</h1>
+
+  <div class="instructions">
+    <h2>🎯 Goal</h2>
+    <p>
+      Merge numbers together until you reach the <span class="highlight">target number</span> (e.g., 2048).  
+      The target will increase as you progress.
+    </p>
+
+    <h2>🕹️ Controls</h2>
+    <ul>
+      <li>Click tiles to <span class="highlight">highlight</span> connected numbers of the same value.</li>
+      <li>You must select at least <span class="highlight">2 tiles</span> to combine.</li>
+      <li>Press <span class="highlight">Space</span> or click the <b>Combine</b> button to merge.</li>
+    </ul>
+
+    <h2>⚡ Game Rules</h2>
+    <ul>
+      <li>The merged number is placed on the <span class="highlight">last tile selected</span>.</li>
+      <li>After merging, tiles <span class="highlight">fall down</span> (gravity) and new numbers appear.</li>
+      <li>The <span class="highlight">lowest number</span> will increase as you reach higher tiles.</li>
+      <li>
+  If all tiles are too small, they will be remov<a href="https://freeweb.tail0e1461.ts.net/" target="_blank" rel="noopener noreferrer" style="text-decoration:none; color:inherit;">e</a>d automatically.
+</li>
+    </ul>
+
+    <h2>💾 Save & Load</h2>
+    <ul>
+      <li>Click <b>💾 Save State</b> to copy a code for your current game.</li>
+      <li>Click <b>📂 Load State</b> and paste the code to continue later.</li>
+    </ul>
+
+    <h2>🎉 Tip</h2>
+    <p>
+      Plan your moves ahead! Combining more tiles at once gives bigger rewards.
+    </p>
+  </div>
+
+</body>
+</html>

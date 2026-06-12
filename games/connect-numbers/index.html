@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Connect & Merge Game</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --cell-size: 60px;
+    --gap: 6px;
+    --cols: 5;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: #2e3b4e; /* dark blue-grey */
+    color: #f0f4f8; /* light text */
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+  }
+
+  h1 { margin-top: 20px; }
+
+  #top-bar { margin: 8px 0; font-size: 16px; color: #dce6f2; }
+  #center-number { font-size: 28px; margin: 10px 0; font-weight: 600; }
+
+  /* Top navigation (same style family as ask/answered) */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .top-bar a {
+      display: inline-block;
+      padding: 8px 14px;
+      background: #4caf50;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .top-bar a:hover {
+      background: #3d8b40;
+    }
+
+  /* Grid container size computed from variables so button can match */
+  #grid {
+    position: relative;
+    width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--cell-size));
+    grid-auto-rows: var(--cell-size);
+    gap: var(--gap);
+    justify-content: center;
+    margin: 12px auto;
+    background: transparent;
+    padding: 0;
+  }
+
+  .grid-wrapper {
+  width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
+  height: calc(var(--cell-size) * 8 + var(--gap) * (8 - 1));
+  margin: 12px auto;
+  position: relative;
+  }
+
+
+  .cell {
+    position: absolute;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    user-select: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 18px;
+    color: #111;
+    transition: transform 0.25s ease-in;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06) inset;
+  }
+
+  .cell:hover { transform: translateY(-2px); }
+
+  .highlighted { outline: 3px solid rgba(64,160,255,0.55); transform: translateY(-3px); }
+  .end-highlight { outline: 4px solid rgba(8,90,170,0.9); box-shadow: 0 4px 10px rgba(0,0,0,0.12); color: #fff; }
+
+  /* Combine button matches grid width */
+  #combine-btn {
+    width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
+    display: block;
+    margin: 12px auto;
+    padding: 10px 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  #combine-btn:disabled {
+    background: #9ccc9c;
+    cursor: not-allowed;
+    opacity: .85;
+  }
+
+  /* --- Tile Colors (fitting grey-blue theme but readable) --- */
+  .val-1    { background:#f2f2f2; color:#333; }
+  .val-2    { background:#d0e1f9; color:#1c2a39; }
+  .val-4    { background:#a9c8e6; color:#1c2a39; }
+  .val-8    { background:#7fa6d6; color:#fff; }
+  .val-16   { background:#578ec6; color:#fff; }
+  .val-32   { background:#3e6fae; color:#fff; }
+  .val-64   { background:#325a8a; color:#fff; }
+  .val-128  { background:#26486e; color:#fff; font-size:16px; }
+  .val-256  { background:#1d3652; color:#fff; font-size:16px; }
+  .val-512  { background:#142638; color:#fff; font-size:16px; }
+  .val-1024 { background:#0f1c28; color:#fff; font-size:15px; }
+  .val-2048 { background:#0a131b; color:#fff; font-size:15px; }
+  .val-4096 { background:#08101a; color:#fff; font-size:15px; }
+  .val-8192 { background:#050b12; color:#fff; font-size:15px; }
+
+  /* small screens: scale down the UI */
+  @media (max-width:420px){
+    :root{ --cell-size: 46px; --gap:6px; }
+    #center-number { font-size: 20px; }
+  }
+</style>
+
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="index.html">⬅ Home</a>
+    <a href="javascript:void(0)" onclick="saveState()">💾 Save State</a>
+    <a href="javascript:void(0)" onclick="loadState()">📂 Load State</a>
+    <a href="connect_numbers_instruction.html">ℹ️ Instruction</a>
+  </div>
+  <h1>🔗 Connect Numbers</h1>
+  <div id="top-bar">
+    Lowest: <span id="lowest-number">1</span> &nbsp;|&nbsp;
+    Highest: <span id="highest-number">16</span> &nbsp;|&nbsp;
+    Target: <span id="target-number">2048</span>
+  </div>
+
+  <div id="center-number">1</div>
+
+<div class="grid-wrapper">
+  <div id="grid"></div>
+</div>
+<button id="combine-btn">Combine (Space)</button>
+
+
+
+
+<script>
+/*  Connect & Merge - playable demo
+    Fixes:
+    - Space + button both trigger combine
+    - Combine keeps merged number in last cell
+    - Gravity + spawn run in sequence (visual delay)
+*/
+
+const ROWS = 8;
+const COLS = 5;
+
+let grid = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+let highlighted = []; // array of {row, col}
+let lowest = 1;
+let connectNumber = 1;
+let target = 2048;
+let isInitialized = false;
+
+const gridContainer = document.getElementById('grid');
+const combineBtn = document.getElementById('combine-btn');
+
+let colorMap = {};  // number -> color
+const baseColors = [
+  "#e6194B", "#3cb44b", "#4363d8", "#f58231",
+  "#911eb4", "#46f0f0", "#f032e6", "#bcf60c",
+  "#fabebe", "#008080", "#e6beff", "#9A6324",
+  "#fffac8", "#800000", "#aaffc3", "#808000"
+];
+let colorIndex = 0;
+
+
+// formatting and colors
+function formatNumber(n){
+  if (n >= 1_000_000_000_000_000_000_000_000) return Math.round(n/1_000_000_000_000_000_000_000_000) + 'Y'; // yotta
+  if (n >= 1_000_000_000_000_000_000_000)     return Math.round(n/1_000_000_000_000_000_000_000) + 'Z'; // zetta
+  if (n >= 1_000_000_000_000_000_000)         return Math.round(n/1_000_000_000_000_000_000) + 'E'; // exa
+  if (n >= 1_000_000_000_000_000)             return Math.round(n/1_000_000_000_000_000) + 'P'; // peta
+  if (n >= 1_000_000_000_000)                 return Math.round(n/1_000_000_000_000) + 'T'; // trillion
+  if (n >= 1_000_000_000)                     return Math.round(n/1_000_000_000) + 'B'; // billion
+  if (n >= 1_000_000)                         return Math.round(n/1_000_000) + 'M'; // million
+  if (n >= 1_000)                             return Math.round(n/1_000) + 'k'; // thousand
+  if (n === 0)                                return "0"; // zero case
+  return String(n); // default
+}
+function getColor(num) {
+  if (!colorMap[num]) {
+    // assign a new color from the pool, cycling if we run out
+    colorMap[num] = baseColors[colorIndex % baseColors.length];
+    colorIndex++;
+  }
+  return colorMap[num];
+}
+
+
+// helper: compute target = 2^( log2(lowest) + 11 )
+function getTargetFromLowest(lowestVal){
+  const n = Math.log2(lowestVal);
+  return Math.pow(2, n + 11);
+}
+
+// update top bar (lowest/connect/highest/target)
+function updateTopBar(){
+  const highest = getHighest();
+  document.getElementById('lowest-number').textContent = formatNumber(lowest);
+  document.getElementById('highest-number').textContent = formatNumber(highest);
+  document.getElementById('target-number').textContent = formatNumber(target);
+}
+
+// create 40 cells once
+function createGridHTML(){
+  gridContainer.innerHTML = '';
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+      cell.addEventListener('click', () => toggleHighlight(r,c));
+      gridContainer.appendChild(cell);
+    }
+  }
+}
+
+// adjacency & same-value check against last selected
+function canHighlight(r,c){
+  if (grid[r][c] === 0) return false;
+  if (highlighted.length === 0) return true;
+  const last = highlighted[highlighted.length - 1];
+  const dr = Math.abs(last.row - r);
+  const dc = Math.abs(last.col - c);
+  return (dr <= 1 && dc <= 1 && grid[r][c] === grid[last.row][last.col]);
+}
+
+// toggle selection
+function toggleHighlight(r,c){
+  const idx = highlighted.findIndex(h => h.row === r && h.col === c);
+  if (idx !== -1){
+    // already selected
+    if (idx === highlighted.length - 1){
+      highlighted.pop(); // backtrack
+    } // else ignore
+  } else {
+    if (canHighlight(r,c)){
+      highlighted.push({row:r,col:c});
+    }
+  }
+  updateCenterNumber();
+  renderGrid();
+}
+
+// compute next power of two >= sum
+function nextPowerOfTwo(sum){
+  let n = 1;
+  while(n < sum) n <<= 1;
+  return n;
+}
+
+function updateCenterNumber(){
+  const sum = highlighted.reduce((acc,h) => acc + grid[h.row][h.col], 0);
+  connectNumber = sum > 0 ? nextPowerOfTwo(sum) : 1;
+  document.getElementById('center-number').textContent = formatNumber(connectNumber);
+  // enable combine button only when 2+ selected
+  combineBtn.disabled = highlighted.length < 2;
+}
+
+// get highest number in grid
+function getHighest(){
+  let mx = 0;
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if (grid[r][c] > mx) mx = grid[r][c];
+    }
+  }
+  return mx;
+}
+
+// gravity: let numbers fall down per column
+function applyGravity(){
+  for(let c=0;c<COLS;c++){
+    const stack = [];
+    for(let r=ROWS-1;r>=0;r--){
+      if (grid[r][c] !== 0) stack.push(grid[r][c]);
+    }
+    for(let r=ROWS-1;r>=0;r--){
+      grid[r][c] = stack.length ? stack.shift() : 0;
+    }
+  }
+  renderGrid(); // re-position with animation
+}
+
+
+// spawn new numbers at empty cells
+function spawnNewNumbers(){
+  const highest = getHighest();
+
+  // if highest reaches or exceeds target, raise lowest and recompute target
+  if (highest >= target){
+    lowest *= 2;
+    target = getTargetFromLowest(lowest);
+    colorMap = {};   // reset colors when range shifts
+    colorIndex = 0;
+  }
+
+  // clear numbers below lowest
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if (grid[r][c] < lowest) grid[r][c] = 0;
+    }
+  }
+
+  const allowed = [];
+  for(let i=0;i<4;i++) allowed.push(lowest * Math.pow(2,i));
+
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if (grid[r][c] === 0){
+        grid[r][c] = allowed[Math.floor(Math.random() * allowed.length)];
+      }
+    }
+  }
+}
+
+function positionCell(cell, row, col) {
+  const x = col * (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell-size")) 
+                   + parseInt(getComputedStyle(document.documentElement).getPropertyValue("--gap")));
+  const y = row * (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell-size")) 
+                   + parseInt(getComputedStyle(document.documentElement).getPropertyValue("--gap")));
+  cell.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function renderGrid(){
+  const children = gridContainer.children;
+  for(let i=0;i<children.length;i++){
+    const cell = children[i];
+    const r = parseInt(cell.dataset.row);
+    const c = parseInt(cell.dataset.col);
+    const val = grid[r][c];
+    cell.textContent = val ? formatNumber(val) : '';
+    cell.style.background = val ? getColor(val) : '#ddd';
+
+    positionCell(cell, r, c);
+
+    cell.classList.remove('highlighted','end-highlight');
+    const idx = highlighted.findIndex(h => h.row === r && h.col === c);
+    if (idx !== -1){
+      if (idx === highlighted.length - 1) cell.classList.add('end-highlight');
+      else cell.classList.add('highlighted');
+    }
+  }
+  updateTopBar();
+  combineBtn.disabled = highlighted.length < 2;
+}
+
+
+// combine selected
+function combineHighlight(){
+  if (highlighted.length < 2) return;
+
+  const last = highlighted[highlighted.length - 1];
+
+  // clear selected except last
+  highlighted.forEach(h => {
+    if (!(h.row === last.row && h.col === last.col)) {
+      grid[h.row][h.col] = 0;
+    }
+  });
+
+  // put merged number in last
+  grid[last.row][last.col] = connectNumber;
+
+  // reset selection
+  highlighted = [];
+  connectNumber = 1;
+  document.getElementById('center-number').textContent = connectNumber;
+  renderGrid();
+
+  // gravity + spawn sequence
+  setTimeout(() => {
+    applyGravity();
+    renderGrid();
+
+    setTimeout(() => {
+      spawnNewNumbers();
+      renderGrid();
+    }, 200);
+  }, 150);
+}
+
+const state = {
+  grid: grid.flat(),
+  lowest,
+  target
+};
+
+function xorEncrypt(str, key="mySecretKey") {
+  return btoa([...str].map((c,i)=>String.fromCharCode(c.charCodeAt(0)^key.charCodeAt(i%key.length))).join(""));
+}
+function xorDecrypt(enc, key="mySecretKey") {
+  const decoded = atob(enc);
+  return [...decoded].map((c,i)=>String.fromCharCode(c.charCodeAt(0)^key.charCodeAt(i%key.length))).join("");
+}
+
+function saveState() {
+  const state = {
+    grid: grid.flat(),
+    lowest,
+    target
+  };
+  const json = JSON.stringify(state);
+  const encrypted = xorEncrypt(json);
+
+  const input = prompt("Copy your save code below:", encrypted);
+  if (input) navigator.clipboard.writeText(input).then(()=>alert("Copied to clipboard!"));
+}
+
+function loadState() {
+  const input = prompt("Paste your save code:");
+  if (!input) return;
+  try {
+    const json = xorDecrypt(input);
+    const state = JSON.parse(json);
+
+    // restore
+    let idx = 0;
+    for (let r=0;r<ROWS;r++) {
+      for (let c=0;c<COLS;c++) {
+        grid[r][c] = state.grid[idx++];
+      }
+    }
+    lowest = state.lowest;
+    target = state.target;
+    highlighted = [];
+    connectNumber = 1;
+    renderGrid();
+    alert("Game loaded!");
+  } catch (e) {
+    alert("Invalid save code!");
+  }
+}
+
+
+// initialize
+function initGame(){
+  createGridHTML();
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      grid[r][c] = [1,2,4,8][Math.floor(Math.random()*4)];
+    }
+  }
+  target = getTargetFromLowest(lowest);
+  updateCenterNumber();
+  renderGrid();
+  isInitialized = true;
+}
+
+// key + button events
+document.addEventListener('keydown', (ev) => {
+  if ((ev.code === 'Space' || ev.key === ' ') && isInitialized){
+    ev.preventDefault();
+    combineHighlight();
+  }
+});
+combineBtn.addEventListener('click', combineHighlight);
+
+// start game
+initGame();
+</script>
+
+</body>
+</html>
