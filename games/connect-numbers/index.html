@@ -1,159 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Connect & Merge Game</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<style>
-  :root{
-    --cell-size: 60px;
-    --gap: 6px;
-    --cols: 5;
-  }
-
-  body {
-    font-family: Arial, sans-serif;
-    background: #2e3b4e; /* dark blue-grey */
-    color: #f0f4f8; /* light text */
-    margin: 0;
-    padding: 20px;
-    text-align: center;
-  }
-
-  h1 { margin-top: 20px; }
-
-  #top-bar { margin: 8px 0; font-size: 16px; color: #dce6f2; }
-  #center-number { font-size: 28px; margin: 10px 0; font-weight: 600; }
-
-  /* Top navigation (same style family as ask/answered) */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 15px;
-    }
-    .top-bar a {
-      display: inline-block;
-      padding: 8px 14px;
-      background: #4caf50;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .top-bar a:hover {
-      background: #3d8b40;
-    }
-
-  /* Grid container size computed from variables so button can match */
-  #grid {
-    position: relative;
-    width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
-    display: grid;
-    grid-template-columns: repeat(var(--cols), var(--cell-size));
-    grid-auto-rows: var(--cell-size);
-    gap: var(--gap);
-    justify-content: center;
-    margin: 12px auto;
-    background: transparent;
-    padding: 0;
-  }
-
-  .grid-wrapper {
-  width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
-  height: calc(var(--cell-size) * 8 + var(--gap) * (8 - 1));
-  margin: 12px auto;
-  position: relative;
-  }
-
-
-  .cell {
-    position: absolute;
-    width: var(--cell-size);
-    height: var(--cell-size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    user-select: none;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 18px;
-    color: #111;
-    transition: transform 0.25s ease-in;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.06) inset;
-  }
-
-  .cell:hover { transform: translateY(-2px); }
-
-  .highlighted { outline: 3px solid rgba(64,160,255,0.55); transform: translateY(-3px); }
-  .end-highlight { outline: 4px solid rgba(8,90,170,0.9); box-shadow: 0 4px 10px rgba(0,0,0,0.12); color: #fff; }
-
-  /* Combine button matches grid width */
-  #combine-btn {
-    width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
-    display: block;
-    margin: 12px auto;
-    padding: 10px 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    background: #2e7d32;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-  }
-  #combine-btn:disabled {
-    background: #9ccc9c;
-    cursor: not-allowed;
-    opacity: .85;
-  }
-
-  /* --- Tile Colors (fitting grey-blue theme but readable) --- */
-  .val-1    { background:#f2f2f2; color:#333; }
-  .val-2    { background:#d0e1f9; color:#1c2a39; }
-  .val-4    { background:#a9c8e6; color:#1c2a39; }
-  .val-8    { background:#7fa6d6; color:#fff; }
-  .val-16   { background:#578ec6; color:#fff; }
-  .val-32   { background:#3e6fae; color:#fff; }
-  .val-64   { background:#325a8a; color:#fff; }
-  .val-128  { background:#26486e; color:#fff; font-size:16px; }
-  .val-256  { background:#1d3652; color:#fff; font-size:16px; }
-  .val-512  { background:#142638; color:#fff; font-size:16px; }
-  .val-1024 { background:#0f1c28; color:#fff; font-size:15px; }
-  .val-2048 { background:#0a131b; color:#fff; font-size:15px; }
-  .val-4096 { background:#08101a; color:#fff; font-size:15px; }
-  .val-8192 { background:#050b12; color:#fff; font-size:15px; }
-
-  /* small screens: scale down the UI */
-  @media (max-width:420px){
-    :root{ --cell-size: 46px; --gap:6px; }
-    #center-number { font-size: 20px; }
-  }
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Numbers | Web Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+      :root { --cell-size: 60px; --gap: 6px; --cols: 5; }
+      #grid {
+        position: relative;
+        width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
+        display: grid;
+        grid-template-columns: repeat(var(--cols), var(--cell-size));
+        grid-auto-rows: var(--cell-size);
+        gap: var(--gap);
+        justify-content: center;
+        margin: 12px auto;
+      }
+      .grid-wrapper {
+        width: calc(var(--cell-size) * var(--cols) + var(--gap) * (var(--cols) - 1));
+        height: calc(var(--cell-size) * 8 + var(--gap) * (8 - 1));
+        margin: 12px auto;
+        position: relative;
+      }
+      .cell {
+        position: absolute;
+        width: var(--cell-size);
+        height: var(--cell-size);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        user-select: none;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 18px;
+        transition: transform 0.25s ease-in;
+      }
+      .cell:hover { transform: translateY(-2px); }
+      .highlighted { outline: 3px solid #6366f1; transform: translateY(-3px); }
+      .end-highlight { outline: 4px solid #4f46e5; box-shadow: 0 4px 10px rgba(0,0,0,0.12); color: #fff; }
+      
+      @media (max-width:420px){
+        :root{ --cell-size: 46px; --gap:6px; }
+      }
+    </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans p-6 text-center">
 
-  <div class="top-bar">
-    <a href="../index.html">⬅ Games Dashboard</a>
-    <a href="javascript:void(0)" onclick="saveState()">💾 Save State</a>
-    <a href="javascript:void(0)" onclick="loadState()">📂 Load State</a>
-    <a href="instruction.html">ℹ️ Instruction</a>
+  <div class="max-w-xl mx-auto">
+    <div class="flex justify-between items-center mb-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <a href="../index.html" class="text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-arrow-left"></i> Games</a>
+      <div class="flex gap-2">
+        <button onclick="saveState()" class="text-xs bg-slate-800 p-2 rounded hover:bg-slate-700">💾 Save</button>
+        <button onclick="loadState()" class="text-xs bg-slate-800 p-2 rounded hover:bg-slate-700">📂 Load</button>
+        <a href="instruction.html" class="text-xs bg-slate-800 p-2 rounded hover:bg-slate-700">ℹ️ Info</a>
+      </div>
+    </div>
+    
+    <h1 class="text-4xl font-black mb-4 bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">Connect Numbers</h1>
+    
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-6 flex justify-around text-sm text-slate-400">
+      <span>Lowest: <b id="lowest-number" class="text-slate-200">1</b></span>
+      <span>Highest: <b id="highest-number" class="text-slate-200">16</b></span>
+      <span>Target: <b id="target-number" class="text-slate-200">2048</b></span>
+    </div>
+
+    <div id="center-number" class="text-4xl font-bold text-pink-500 mb-4">1</div>
+
+    <div class="grid-wrapper">
+      <div id="grid"></div>
+    </div>
+    
+    <button id="combine-btn" class="w-full bg-pink-600 hover:bg-pink-500 disabled:bg-slate-800 disabled:opacity-50 text-white font-bold py-3 rounded-xl mt-4 transition-all" disabled>Combine (Space)</button>
   </div>
-  <h1>🔗 Connect Numbers</h1>
-  <div id="top-bar">
-    Lowest: <span id="lowest-number">1</span> &nbsp;|&nbsp;
-    Highest: <span id="highest-number">16</span> &nbsp;|&nbsp;
-    Target: <span id="target-number">2048</span>
-  </div>
 
-  <div id="center-number">1</div>
-
-<div class="grid-wrapper">
-  <div id="grid"></div>
-</div>
-<button id="combine-btn">Combine (Space)</button>
 
 
 
