@@ -1,4 +1,4 @@
-# Project Context: API Project Hub
+# Project Context: Web Room
 
 ## Project Overview
 This repository is a showcase of interactive web applications, organized by category (e.g., `/api/`, `/games/`). 
