@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Master Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen font-sans">
+
+    <!-- Hero Section -->
+    <header class="py-20 bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-6xl font-black mb-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                API PROJECT PAGE
+            </h1>
+            <p class="text-xl text-slate-400 max-w-2xl mx-auto">
+                A collection of modern web applications powered by various public APIs. 
+                Explore live demos of different data integrations and UI designs.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16">
+        <!-- Back Button -->
+        <div class="mb-10">
+            <a href="../index.html" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 px-6 rounded-xl transition-all">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+                Back to Home
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="projectGrid">
+            
+            <!-- Project Card: AnimePage -->
+            <a href="./anime/index.html" class="group block relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 transition-all hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10">
+                <div class="aspect-video bg-indigo-900/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-tv text-6xl text-indigo-500 group-hover:scale-110 transition-transform"></i>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                </div>
+                <div class="p-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="bg-indigo-500/10 text-indigo-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">REST API</span>
+                        <span class="bg-slate-800 text-slate-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">Completed</span>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-3 group-hover:text-indigo-400 transition-colors">Anime Discovery Page</h2>
+                    <p class="text-slate-400 mb-6 line-clamp-2">
+                        A full-featured anime search and tracking app using the Jikan API. Includes trending lists, details, and a local watchlist.
+                    </p>
+                    <div class="inline-flex items-center gap-2 bg-indigo-600 group-hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                        Launch App
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Project Card: Waktu Solat -->
+            <a href="./solat/index.html" class="group block relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 transition-all hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/10">
+                <div class="aspect-video bg-emerald-900/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-mosque text-6xl text-emerald-500 group-hover:scale-110 transition-transform"></i>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                </div>
+                <div class="p-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">REST API</span>
+                        <span class="bg-slate-800 text-slate-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">Completed</span>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-3 group-hover:text-emerald-400 transition-colors">Waktu Solat Page</h2>
+                    <p class="text-slate-400 mb-6 line-clamp-2">
+                        Official prayer times using JAKIM data. Features automatic location detection, a countdown timer, and a monthly calendar.
+                    </p>
+                    <div class="inline-flex items-center gap-2 bg-emerald-600 group-hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                        Launch App
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Project Card: CatPage -->
+            <a href="./cat/index.html" class="group block relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 transition-all hover:border-pink-500/50 hover:shadow-2xl hover:shadow-pink-500/10">
+                <div class="aspect-video bg-pink-900/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-cat text-6xl text-pink-500 group-hover:scale-110 transition-transform"></i>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                </div>
+                <div class="p-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="bg-pink-500/10 text-pink-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">REST API</span>
+                        <span class="bg-slate-800 text-slate-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">Completed</span>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-3 group-hover:text-pink-400 transition-colors">CatPage Discovery</h2>
+                    <p class="text-slate-400 mb-6 line-clamp-2">
+                        A simple, playful web application displaying random cat images fetched dynamically from TheCatAPI.
+                    </p>
+                    <div class="inline-flex items-center gap-2 bg-pink-600 group-hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                        Launch App
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Project Card: QuranPage -->
+            <a href="./quran/index.html" class="group block relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 transition-all hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/10">
+                <div class="aspect-video bg-emerald-900/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-book text-6xl text-emerald-500 group-hover:scale-110 transition-transform"></i>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                </div>
+                <div class="p-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">REST API</span>
+                        <span class="bg-slate-800 text-slate-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">Completed</span>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-3 group-hover:text-emerald-400 transition-colors">QuranPage Reader</h2>
+                    <p class="text-slate-400 mb-6 line-clamp-2">
+                        A clean, accessible reader for the Holy Quran with Malay translation support.
+                    </p>
+                    <div class="inline-flex items-center gap-2 bg-emerald-600 group-hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                        Launch App
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <footer class="py-20 border-t border-slate-900 text-center">
+        <p class="text-slate-600">&copy; 2026 API Page Portfolio. Hosted on GitHub Pages.</p>
+    </footer>
+
+</body>
+</html>
